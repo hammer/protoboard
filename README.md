@@ -1,3 +1,5 @@
 A demonstration of Protovis served by Tornado.
 
-Currently pulls data from Google Analytics using [python-googleanalytics](http://github.com/clintecker/python-googleanalytics/).
+Data sources
+ * Google Analytics using [python-googleanalytics](http://github.com/clintecker/python-googleanalytics/).
+ * Bit.ly using [bitly-api-python](http://github.com/hammer/bitly-api-python).

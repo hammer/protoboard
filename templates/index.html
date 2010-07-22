@@ -1,10 +1,12 @@
 <html>
 <head>
   <script type="text/javascript" src="{{ static_url("js/protovis-d3.2.js") }}"></script>
+  <script type="text/javascript" charset="utf-8" src="http://bit.ly/javascript-api.js?version=latest&login=cloudera&apiKey=R_a801f0f600db670e8fb228701e7ae5c2"></script> 
 </head>
 <body>
+  <!-- Google Analytics stats charting -->
   <script type="text/javascript+protovis">
-var yvals = {{ escape(data) }},
+var yvals = {{ escape(ga_data) }},
     data = pv.range(yvals.length).map(function(x) {
         return {x: x, y: yvals[x]};
       }),
@@ -46,4 +48,12 @@ vis.add(pv.Line)
 vis.render();
 
   </script>
+
+  <!-- Bitly stats printing -->
+  <div id="bitly">
+    <h1>Popular Bit.ly Links</h1>
+    {% for link_clicks in bitly_data %}
+      {% include "link_click.html" %}
+    {% end %}  
+  </div>
 </body>
