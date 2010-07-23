@@ -1,11 +1,12 @@
 <html>
 <head>
   <script type="text/javascript" src="{{ static_url("js/protovis-d3.2.js") }}"></script>
-  <script type="text/javascript" charset="utf-8" src="http://bit.ly/javascript-api.js?version=latest&login=cloudera&apiKey=R_a801f0f600db670e8fb228701e7ae5c2"></script> 
 </head>
 <body>
-  <!-- Google Analytics stats charting -->
-  <script type="text/javascript+protovis">
+  <!-- Google Analytics -->
+  <div id="ga">
+    <h1>Cloudera.com Page Views</h1>
+    <script type="text/javascript+protovis">
 var yvals = {{ escape(ga_data) }},
     data = pv.range(yvals.length).map(function(x) {
         return {x: x, y: yvals[x]};
@@ -13,7 +14,7 @@ var yvals = {{ escape(ga_data) }},
     w = 400,
     h = 200,
     x = pv.Scale.linear(data, function(d) d.x).range(0, w),
-    y = pv.Scale.linear(pv.min(yvals), pv.max(yvals)).range(0, h);
+    y = pv.Scale.linear(0, pv.max(yvals) * 1.1).range(0, h);
 
 var vis = new pv.Panel()
     .width(w)
@@ -46,14 +47,22 @@ vis.add(pv.Line)
     .lineWidth(3);
 
 vis.render();
+    </script>
+  </div>
 
-  </script>
-
-  <!-- Bitly stats printing -->
+  <!-- Bit.ly -->
   <div id="bitly">
     <h1>Popular Bit.ly Links</h1>
-    {% for link_clicks in bitly_data %}
-      {% include "link_click.html" %}
+    {% for links in bitly_data %}
+      {% include "link.html" %}
+    {% end %}  
+  </div>
+
+  <!-- Slideshare -->
+  <div id="slideshare">
+    <h1>Popular Slideshare Slideshows</h1>
+    {% for slideshow in ss_data %}
+      {% include "slideshow.html" %}
     {% end %}  
   </div>
 </body>

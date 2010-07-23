@@ -8,3 +8,4 @@ Visualization is done by [Protovis](http://www.protovis.org) and the web content
 
  * Google Analytics using [python-googleanalytics](http://github.com/clintecker/python-googleanalytics/).
  * Bit.ly using [bitly-api-python](http://github.com/hammer/bitly-api-python).
+ * Slideshare using [pyslideshare](http://code.google.com/p/pyslideshare).
