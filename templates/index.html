@@ -53,6 +53,40 @@ vis.render();
   <!-- Bit.ly -->
   <div id="bitly">
     <h1>Popular Bit.ly Links</h1>
+    <script type="text/javascript+protovis">
+var bitly_data = {{ bitly_data }};
+var clicks = [bitly_data[i].clicks for (i in bitly_data)];
+
+/* Sizing and scales. */
+var w = 400,
+    h = 250,
+    x = pv.Scale.linear(0, pv.max(clicks) * 1.1).range(0, w),
+    y = pv.Scale.ordinal(pv.range(clicks.length)).splitBanded(0, h, 4/5);
+
+/* The root panel. */
+var vis = new pv.Panel()
+    .width(w)
+    .height(h)
+    .bottom(20)
+    .left(20)
+    .right(10)
+    .top(5);
+
+/* The bars. */
+var bar = vis.add(pv.Bar)
+    .data(clicks)
+    .top(function() y(this.index))
+    .height(y.range().band)
+    .left(0)
+    .width(x);
+
+/* The value label. */
+bar.anchor("right").add(pv.Label)
+    .textStyle("white");
+
+vis.render();
+
+    </script>
     {% for links in bitly_data %}
       {% include "link.html" %}
     {% end %}  
