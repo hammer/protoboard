@@ -7,7 +7,7 @@
   <div id="ga">
     <h1>Cloudera.com Page Views</h1>
     <script type="text/javascript+protovis">
-var yvals = {{ escape(ga_data) }},
+var yvals = {{ ga_data }},
     data = pv.range(yvals.length).map(function(x) {
         return {x: x, y: yvals[x]};
       }),
@@ -97,6 +97,14 @@ vis.render();
     <h1>Popular Slideshare Slideshows</h1>
     {% for slideshow in ss_data %}
       {% include "slideshow.html" %}
+    {% end %}  
+  </div>
+
+  <!-- Twitter -->
+  <div id="twitter">
+    <h1>Twitter Mentions</h1>
+    {% for mention in twitter_data %}
+      {% include "mention.html" %}
     {% end %}  
   </div>
 </body>
