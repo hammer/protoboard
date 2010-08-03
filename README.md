@@ -10,3 +10,5 @@ Visualization is done by [Protovis](http://www.protovis.org) and the web content
  * Bit.ly using [bitly-api-python](http://github.com/hammer/bitly-api-python).
  * Slideshare using [pyslideshare](http://code.google.com/p/pyslideshare).
  * Twitter using [twython](http://github.com/ryanmcgrath/twython).
+ * Zendesk using my own hand-rolled Python client.
+
