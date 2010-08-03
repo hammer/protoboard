@@ -107,4 +107,12 @@ vis.render();
       {% include "mention.html" %}
     {% end %}  
   </div>
+
+  <!-- Zendesk -->
+  <div id="zendesk">
+    <h1>Popular Knowledge Base Entries</h1>
+    {% for entry in zd_data %}
+      {% include "zd_forum_entry.html" %}
+    {% end %}  
+  </div>
 </body>
