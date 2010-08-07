@@ -11,4 +11,4 @@ Visualization is done by [Protovis](http://www.protovis.org) and the web content
  * Slideshare using [pyslideshare](http://code.google.com/p/pyslideshare).
  * Twitter using [twython](http://github.com/ryanmcgrath/twython).
  * Zendesk using my own hand-rolled Python client.
-
+ * JIRA using [suds](https://fedorahosted.org/suds).
