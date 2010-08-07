@@ -6,6 +6,7 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.web
 
+# API Clients
 import googleanalytics as ga
 import bitly_api
 from pyslideshare import pyslideshare
@@ -15,6 +16,9 @@ import twython.core as twython
 from tornado import httpclient
 import pycurl
 import simplejson
+
+# Modules needed for hand-crafted JIRA client
+from suds.client import Client
 
 config = ConfigParser.ConfigParser()
 config.readfp(open(os.path.expanduser('~/.protoboard')))
@@ -50,6 +54,15 @@ ZD_PASSWORD = config.get('Zendesk', 'password')
 ZD_FORUMS_URL = 'http://cloudera.zendesk.com/forums.json'
 ZD_ENTRIES_URL = 'http://cloudera.zendesk.com/forums/%(id)s/entries.json?page=%(page)s'
 ZD_ENTRY_URL = 'http://cloudera.zendesk.com/entries/%(id)s'
+
+# JIRA
+JIRA_USERNAME = config.get('JIRA', 'username')
+JIRA_PASSWORD = config.get('JIRA', 'password')
+JIRA_WSDL = 'http://issues.cloudera.org/rpc/soap/jirasoapservice-v2?wsdl'
+JQL_LAST_MODIFIED = 'project = %(project)s AND status not in (Closed, Resolved) \
+                     ORDER BY updated DESC, key DESC'
+JIRA_CLIENT = Client(JIRA_WSDL)
+JIRA_AUTH_TOKEN = JIRA_CLIENT.service.login(JIRA_USERNAME, JIRA_PASSWORD)
 
 # TODO(hammer): Move to async HTTP client
 # TODO(hammer): Add API call to HTTP client to ignore bad certs
@@ -108,7 +121,8 @@ class MainHandler(tornado.web.RequestHandler):
     # Bit.ly
     bitly_data = [{'link': item['url'], 'clicks': str(BITLY_CONN.clicks(shortUrl=item['short_url'])[0]['global_clicks'])}
                   for item in BITLY_CONN.history()]
-    bitly_data.sort(lambda x, y: int(x['clicks']) > int(y['clicks']) and -1 or 1)        
+    bitly_data.sort(lambda x, y: int(x['clicks']) > int(y['clicks']) and -1 or 1)
+    bitly_data = bitly_data[:5]
 
     # Slideshare
     ss_data = [{'title': show.Title, 'views': show.Views}
@@ -122,12 +136,19 @@ class MainHandler(tornado.web.RequestHandler):
     # Zendesk
     zd_data = get_zendesk_data()
 
+    # JIRA
+    # TODO(hammer): client.service.logout(JIRA_AUTH_TOKEN) needed?
+    jql_params = {'project': 'Flume'}
+    jira_data = [{'key': issue.key, 'summary': issue.summary}
+                 for issue in JIRA_CLIENT.service.getIssuesFromJqlSearch(JIRA_AUTH_TOKEN, JQL_LAST_MODIFIED % jql_params, 10)]
+
     self.render("index.html",
                 ga_data=ga_data,
                 bitly_data=bitly_data,
                 ss_data=ss_data,
                 twitter_data=twitter_data,
-                zd_data=zd_data)
+                zd_data=zd_data,
+                jira_data=jira_data)
 
 def main():
  http_server = tornado.httpserver.HTTPServer(Application())

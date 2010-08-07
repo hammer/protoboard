@@ -1,6 +1,10 @@
 <html>
 <head>
-  <script type="text/javascript" src="{{ static_url("js/protovis-d3.2.js") }}"></script>
+  <script type="text/javascript" src="{{ static_url("js/jquery-1.4.2.min.js") }}"></script>
+  <script type="text/javascript" src="{{ static_url("js/jquery.tipsy.js") }}"></script>
+  <script type="text/javascript" src="{{ static_url("js/protovis-d3.2.js") }}"></script
+  <script type="text/javascript" src="{{ static_url("js/pv.tipsy.js") }}"></script>
+  <link href="{{ static_url("css/tipsy.css") }}" type="text/css" rel="stylesheet"/>
 </head>
 <body>
   <!-- Google Analytics -->
@@ -11,8 +15,8 @@ var yvals = {{ ga_data }},
     data = pv.range(yvals.length).map(function(x) {
         return {x: x, y: yvals[x]};
       }),
-    w = 400,
-    h = 200,
+    w = 200,
+    h = 100,
     x = pv.Scale.linear(data, function(d) d.x).range(0, w),
     y = pv.Scale.linear(0, pv.max(yvals) * 1.1).range(0, h);
 
@@ -58,8 +62,8 @@ var bitly_data = {{ bitly_data }};
 var clicks = [bitly_data[i].clicks for (i in bitly_data)];
 
 /* Sizing and scales. */
-var w = 400,
-    h = 250,
+var w = 200,
+    h = 125,
     x = pv.Scale.linear(0, pv.max(clicks) * 1.1).range(0, w),
     y = pv.Scale.ordinal(pv.range(clicks.length)).splitBanded(0, h, 4/5);
 
@@ -78,7 +82,12 @@ var bar = vis.add(pv.Bar)
     .top(function() y(this.index))
     .height(y.range().band)
     .left(0)
-    .width(x);
+    .width(x)
+    .text(function() bitly_data[this.index].link)
+    .event("click", function() document.location.href = bitly_data[this.index].link);
+
+//  Tooltip not working with links for some reason
+//  .event("mouseover", pv.Behavior.tipsy({gravity: "w", fade: true}));
 
 /* The value label. */
 bar.anchor("right").add(pv.Label)
@@ -113,6 +122,14 @@ vis.render();
     <h1>Popular Knowledge Base Entries</h1>
     {% for entry in zd_data %}
       {% include "zd_forum_entry.html" %}
+    {% end %}  
+  </div>
+
+  <!-- JIRA -->
+  <div id="jira">
+    <h1>Recently Updated JIRA Issues</h1>
+    {% for issue in jira_data %}
+      {% include "jira_issue.html" %}
     {% end %}  
   </div>
 </body>
