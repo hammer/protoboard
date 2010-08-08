@@ -1,11 +1,17 @@
 #header {
- margin-top:10px;
- margin-bottom:10px;
+  margin-top:10px;
+  margin-bottom:10px;
+  position:relative;
+}
+
+#header-logo {
+  float:left;
 }
 
 #header-text {
   color:#999999;
-  vertical-align:bottom;
+  position:absolute;
+  bottom:0;
 }
 
 .dashboard-widget {
