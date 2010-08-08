@@ -1,0 +1,14 @@
+#header {
+ margin-top:10px;
+ margin-bottom:10px;
+}
+
+#header-text {
+  color:#999999;
+  vertical-align:bottom;
+}
+
+.dashboard-widget {
+  margin-top:10px;
+  margin-bottom:10px;
+}

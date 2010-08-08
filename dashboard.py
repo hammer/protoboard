@@ -25,12 +25,20 @@ config.readfp(open(os.path.expanduser('~/.protoboard')))
 
 # Google Analytics
 TABLE_ID = config.get('Google Analytics', 'table_id')
-GA_ACCOUNT = ga.Connection().get_account(TABLE_ID)
+try:
+  GA_ACCOUNT = ga.Connection().get_account(TABLE_ID)
+  GA_EXISTS = True
+except:
+  GA_EXISTS = False
 
 # Bit.ly
 BITLY_LOGIN = config.get('Bit.ly', 'login')
 BITLY_API_KEY = config.get('Bit.ly', 'api_key')
-BITLY_CONN = bitly_api.Connection(BITLY_LOGIN, BITLY_API_KEY)
+try:
+  BITLY_CONN = bitly_api.Connection(BITLY_LOGIN, BITLY_API_KEY)
+  BITLY_EXISTS = True
+except:
+  BITLY_EXISTS = False
 
 # Slideshare
 SS_API_KEY = config.get('Slideshare', 'api_key')
@@ -41,12 +49,20 @@ SS_PARAMS = {'api_key': SS_API_KEY,
              'secret_key': SS_SECRET_KEY,
              'username': SS_USERNAME,
              'password': SS_PASSWORD}
-SS_CONN = pyslideshare.pyslideshare(SS_PARAMS, verbose=False)
+try:
+  SS_CONN = pyslideshare.pyslideshare(SS_PARAMS, verbose=False)
+  SS_EXISTS = True
+except:
+  SS_EXISTS = False
 
 # Twitter
 TWITTER_USERNAME = config.get('Twitter', 'username')
 TWITTER_PASSWORD = config.get('Twitter', 'password')
-TWITTER_CONN = twython.setup(username=TWITTER_USERNAME, password=TWITTER_PASSWORD)
+try:
+  TWITTER_CONN = twython.setup(username=TWITTER_USERNAME, password=TWITTER_PASSWORD)
+  TWITTER_EXISTS = True
+except:
+  TWITTER_EXISTS = False
 
 # Zendesk
 ZD_USERNAME = config.get('Zendesk', 'username')
@@ -62,7 +78,11 @@ JIRA_WSDL = 'http://issues.cloudera.org/rpc/soap/jirasoapservice-v2?wsdl'
 JQL_LAST_MODIFIED = 'project = %(project)s AND status not in (Closed, Resolved) \
                      ORDER BY updated DESC, key DESC'
 JIRA_CLIENT = Client(JIRA_WSDL)
-JIRA_AUTH_TOKEN = JIRA_CLIENT.service.login(JIRA_USERNAME, JIRA_PASSWORD)
+try:
+  JIRA_AUTH_TOKEN = JIRA_CLIENT.service.login(JIRA_USERNAME, JIRA_PASSWORD)
+  JIRA_EXISTS = True
+except:
+  JIRA_EXISTS = False
 
 # TODO(hammer): Move to async HTTP client
 # TODO(hammer): Add API call to HTTP client to ignore bad certs
@@ -113,34 +133,51 @@ class Application(tornado.web.Application):
 class MainHandler(tornado.web.RequestHandler):
   def get(self):
     # Google Analytics
-    start_date = datetime.date(2010, 07, 01)
-    end_date = datetime.date.today() - datetime.timedelta(1)
-    ga_data = [item[1][0]
-               for item in GA_ACCOUNT.get_data(start_date, end_date, metrics=['pageviews'], dimensions=['date']).list]
+    if GA_EXISTS:
+      start_date = datetime.date(2010, 07, 01)
+      end_date = datetime.date.today() - datetime.timedelta(1)
+      ga_data = [item[1][0]
+                 for item in GA_ACCOUNT.get_data(start_date, end_date, metrics=['pageviews'], dimensions=['date']).list]
+    else:
+      ga_data = []
 
     # Bit.ly
-    bitly_data = [{'link': item['url'], 'clicks': str(BITLY_CONN.clicks(shortUrl=item['short_url'])[0]['global_clicks'])}
-                  for item in BITLY_CONN.history()]
-    bitly_data.sort(lambda x, y: int(x['clicks']) > int(y['clicks']) and -1 or 1)
-    bitly_data = bitly_data[:5]
+    if BITLY_EXISTS:
+      bitly_data = [{'link': item['url'], 'clicks': str(BITLY_CONN.clicks(shortUrl=item['short_url'])[0]['global_clicks'])}
+                    for item in BITLY_CONN.history()]
+      bitly_data.sort(lambda x, y: int(x['clicks']) > int(y['clicks']) and -1 or 1)
+      bitly_data = bitly_data[:5]
+    else:
+      bitly_data = []
 
     # Slideshare
-    ss_data = [{'title': show.Title, 'views': show.Views}
-               for show in SS_CONN.get_slideshow_by_user(username_for='cloudera').User.Slideshow]
-    ss_data.sort(lambda x, y: int(x['views']) > int(y['views']) and -1 or 1)
+    if SS_EXISTS:
+      ss_data = [{'title': show.Title, 'views': show.Views}
+                 for show in SS_CONN.get_slideshow_by_user(username_for='cloudera').User.Slideshow]
+      ss_data.sort(lambda x, y: int(x['views']) > int(y['views']) and -1 or 1)
+      ss_data = ss_data[:10]
+    else:
+      ss_data = []
 
     # Twitter
-    twitter_data = [{'username': mention['user']['screen_name'], 'tweet': mention['text']}
-                    for mention in TWITTER_CONN.getUserMentions(count="10")]
+    if TWITTER_EXISTS:
+      twitter_data = [{'username': mention['user']['screen_name'], 'tweet': mention['text']}
+                      for mention in TWITTER_CONN.getUserMentions(count="10")]
+    else:
+      twitter_data = []
 
     # Zendesk
     zd_data = get_zendesk_data()
+    zd_data = zd_data[:10]
 
     # JIRA
     # TODO(hammer): client.service.logout(JIRA_AUTH_TOKEN) needed?
-    jql_params = {'project': 'Flume'}
-    jira_data = [{'key': issue.key, 'summary': issue.summary}
-                 for issue in JIRA_CLIENT.service.getIssuesFromJqlSearch(JIRA_AUTH_TOKEN, JQL_LAST_MODIFIED % jql_params, 10)]
+    if JIRA_EXISTS:
+      jql_params = {'project': 'Flume'}
+      jira_data = [{'key': issue.key, 'summary': issue.summary}
+                   for issue in JIRA_CLIENT.service.getIssuesFromJqlSearch(JIRA_AUTH_TOKEN, JQL_LAST_MODIFIED % jql_params, 10)]
+    else:
+      jira_data = []
 
     self.render("index.html",
                 ga_data=ga_data,

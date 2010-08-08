@@ -8,12 +8,26 @@
   <script type="text/javascript" src="{{ static_url("js/protovis-d3.2.js") }}"></script
   <script type="text/javascript" src="{{ static_url("js/pv.tipsy.js") }}"></script>
   <link href="{{ static_url("css/tipsy.css") }}" type="text/css" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ static_url("css/dashboard.css") }}" type="text/css">
 </head>
 <body>
-  <!-- Google Analytics -->
-  <div id="ga">
-    <h1>Cloudera.com Page Views</h1>
-    <script type="text/javascript+protovis">
+  <!-- Container for Blueprint Grid -->
+  <div class="container">
+    <div class="span-24 last" id="header">
+      <div class="span-6">
+        <img id="header-logo" src="{{ static_url("img/logo.gif") }}" />
+      </div>
+      <div class="span-18 last">
+        <h3 id="header-text">Dogfood Dashboard</h3>
+      </div>
+    </div>
+
+    <!-- Row 1 -->
+    <!-- Google Analytics -->
+    <div class="span-8" id="header">
+      <div class="dashboard-widget" id="ga">
+        <h3>Cloudera.com Page Views</h3>
+        <script type="text/javascript+protovis">
 var yvals = {{ ga_data }},
     data = pv.range(yvals.length).map(function(x) {
         return {x: x, y: yvals[x]};
@@ -54,13 +68,15 @@ vis.add(pv.Line)
     .lineWidth(3);
 
 vis.render();
-    </script>
-  </div>
+        </script>
+      </div>
+    </div>
 
-  <!-- Bit.ly -->
-  <div id="bitly">
-    <h1>Popular Bit.ly Links</h1>
-    <script type="text/javascript+protovis">
+    <!-- Bit.ly -->
+    <div class="span-8">
+      <div class="dashboard-widget" id="bitly">
+        <h3>Popular Bit.ly Links</h3>
+        <script type="text/javascript+protovis">
 var bitly_data = {{ bitly_data }};
 var clicks = [bitly_data[i].clicks for (i in bitly_data)];
 
@@ -97,42 +113,52 @@ bar.anchor("right").add(pv.Label)
     .textStyle("white");
 
 vis.render();
+        </script>
+        {% for links in bitly_data %}
+          {% include "link.html" %}
+        {% end %}
+      </div>
+    </div>
 
-    </script>
-    {% for links in bitly_data %}
-      {% include "link.html" %}
-    {% end %}  
-  </div>
+    <!-- Slideshare -->
+    <div class="span-8 last">
+      <div class="dashboard-widget" id="slideshare">
+        <h3>Popular Slideshare Slideshows</h3>
+        {% for slideshow in ss_data %}
+          {% include "slideshow.html" %}
+        {% end %}  
+      </div>
+    </div>
 
-  <!-- Slideshare -->
-  <div id="slideshare">
-    <h1>Popular Slideshare Slideshows</h1>
-    {% for slideshow in ss_data %}
-      {% include "slideshow.html" %}
-    {% end %}  
-  </div>
+  <!-- Row 2 -->
+    <!-- Twitter -->
+    <div class="span-8">
+      <div class="dashboard-widget" id="twitter">
+        <h3>Twitter Mentions</h3>
+        {% for mention in twitter_data %}
+          {% include "mention.html" %}
+        {% end %}  
+      </div>
+    </div>
 
-  <!-- Twitter -->
-  <div id="twitter">
-    <h1>Twitter Mentions</h1>
-    {% for mention in twitter_data %}
-      {% include "mention.html" %}
-    {% end %}  
-  </div>
+    <!-- Zendesk -->
+    <div class="span-8">
+      <div class="dashboard-widget" id="zendesk">
+        <h3>Popular Knowledge Base Entries</h3>
+        {% for entry in zd_data %}
+          {% include "zd_forum_entry.html" %}
+        {% end %}  
+      </div>
+    </div>
 
-  <!-- Zendesk -->
-  <div id="zendesk">
-    <h1>Popular Knowledge Base Entries</h1>
-    {% for entry in zd_data %}
-      {% include "zd_forum_entry.html" %}
-    {% end %}  
-  </div>
-
-  <!-- JIRA -->
-  <div id="jira">
-    <h1>Recently Updated JIRA Issues</h1>
-    {% for issue in jira_data %}
-      {% include "jira_issue.html" %}
-    {% end %}  
+    <!-- JIRA -->
+    <div class="span-8 last">
+      <div class="dashboard-widget" id="jira">
+        <h3>Recently Updated JIRA Issues</h3>
+        {% for issue in jira_data %}
+          {% include "jira_issue.html" %}
+        {% end %}  
+      </div>
+    </div>
   </div>
 </body>
