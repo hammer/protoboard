@@ -11,6 +11,7 @@ import googleanalytics as ga
 import bitly_api
 from pyslideshare import pyslideshare
 import twython.core as twython
+import satisfaction
 
 # Modules needed for hand-crafted Zendesk client
 from tornado import httpclient
@@ -84,6 +85,13 @@ try:
 except:
   JIRA_EXISTS = False
 
+GS_COMPANY = config.get('Get Satisfaction', 'company')
+try:
+  GS_CONN = satisfaction.Company('cloudera')
+  GS_EXISTS = True
+except:
+  GS_EXISTS = False
+
 # TODO(hammer): Move to async HTTP client
 # TODO(hammer): Add API call to HTTP client to ignore bad certs
 # TODO(hammer): Make Zendesk Python client
@@ -118,6 +126,12 @@ def get_zendesk_data():
 
   # only returning top 20, for now
   return all_entries[:20]
+
+def get_url_from_gs_topic(topic):
+  links = topic.entry.links
+  for link in links:
+    if link['rel'] == u'topic_at_sfn':
+      return link['href']
 
 class Application(tornado.web.Application):
   def __init__(self):
@@ -179,18 +193,27 @@ class MainHandler(tornado.web.RequestHandler):
     else:
       jira_data = []
 
+    # Get Satisfaction
+    if GS_EXISTS:
+      gs_data = [{'title': topic.title, 'url': get_url_from_gs_topic(topic)}
+                 for i, topic in enumerate(GS_CONN.topics)
+                 if i < 10]
+    else:
+      gs_data = []
+
     self.render("index.html",
                 ga_data=ga_data,
                 bitly_data=bitly_data,
                 ss_data=ss_data,
                 twitter_data=twitter_data,
                 zd_data=zd_data,
-                jira_data=jira_data)
+                jira_data=jira_data,
+                gs_data=gs_data)
 
 def main():
- http_server = tornado.httpserver.HTTPServer(Application())
- http_server.listen(8888)
- tornado.ioloop.IOLoop.instance().start()
+  http_server = tornado.httpserver.HTTPServer(Application())
+  http_server.listen(8888)
+  tornado.ioloop.IOLoop.instance().start()
 
 if __name__ == "__main__":
   main()

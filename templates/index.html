@@ -16,12 +16,8 @@
 
     <!-- Header -->
     <div class="span-24 last" id="header">
-      <div class="span-6">
-        <img id="header-logo" src="{{ static_url("img/logo.gif") }}" />
-      </div>
-      <div class="span-18 last">
-        <h3 id="header-text">Dogfood Dashboard</h3>
-      </div>
+      <img id="header-logo" src="{{ static_url("img/logo.gif") }}" />
+      <h3 id="header-text">Dogfood Dashboard</h3>
     </div>
     <hr />
 
@@ -161,6 +157,23 @@ vis.render();
         {% for issue in jira_data %}
           {% include "jira_issue.html" %}
         {% end %}  
+      </div>
+    </div>
+
+  <!-- Row 3 -->
+    <!-- Get Satisfaction -->
+    <div class="span-8">
+      <div class="dashboard-widget" id="gs">
+        <h3>Recently Updated Get Satisfaction Topics</h3>
+        {% for topic in gs_data %}
+          {% include "gs_topic.html" %}
+        {% end %}  
+      </div>
+    </div>
+
+    <!-- empty -->
+    <div class="span-16 last">
+      <div class="dashboard-widget">
       </div>
     </div>
   </div>
