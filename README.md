@@ -12,3 +12,4 @@ Visualization is done by [Protovis](http://www.protovis.org) and the web content
  * Twitter using [twython](http://github.com/ryanmcgrath/twython).
  * Zendesk using my own hand-rolled Python client.
  * JIRA using [suds](https://fedorahosted.org/suds).
+ * Get Satisfaction using [python-satisfaction](http://github.com/hammer/python-satisfaction).
